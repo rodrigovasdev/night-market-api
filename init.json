@@ -1,0 +1,54 @@
+[{
+"name": "Zapatillas Urban Black",
+"shortDescription": "Zapatillas urbanas minimalistas color negro.",
+"longDescription": "Zapatillas urbanas modernas con diseño minimalista, fabricadas con materiales cómodos y ligeros. Ideales para uso diario, outfit casual y estilo streetwear.",
+"price": 59.99,
+"images": [
+    {
+    "url": "https://res.cloudinary.com/di7lw3pla/image/upload/q_auto/f_auto/v1778976857/zapatillas2_hfuykc.png",
+    "isMain": true
+    },
+    {
+    "url": "https://res.cloudinary.com/di7lw3pla/image/upload/q_auto/f_auto/v1778976850/zapatillas3_wpsxdp.png"
+    },
+    {
+    "url": "https://res.cloudinary.com/di7lw3pla/image/upload/q_auto/f_auto/v1778976849/zapatillas1_yn9wsm.png"
+    }
+]
+},
+{
+"name": "Jockey Classic Black",
+"shortDescription": "Jockey negro clásico de estilo casual.",
+"longDescription": "Gorro tipo jockey con diseño moderno y elegante, confeccionado en tela suave y resistente. Perfecto para complementar outfits urbanos y casuales.",
+"price": 24.99,
+"images": [
+    {
+    "url": "https://res.cloudinary.com/di7lw3pla/image/upload/q_auto/f_auto/v1778976851/gorro1_hyzhls.png",
+    "isMain": true
+    },
+    {
+    "url": "https://res.cloudinary.com/di7lw3pla/image/upload/q_auto/f_auto/v1778976850/gorro3_k0jed4.png"
+    },
+    {
+    "url": "https://res.cloudinary.com/di7lw3pla/image/upload/q_auto/f_auto/v1778976850/gorro2_pafgp3.png"
+    }
+]
+},
+{
+"name": "Auriculares Wireless Pro",
+"shortDescription": "Auriculares inalámbricos premium over-ear.",
+"longDescription": "Auriculares bluetooth con diseño moderno, sonido envolvente y almohadillas cómodas para largas sesiones de música, gaming o trabajo.",
+"price": 89.99,
+"images": [
+    {
+    "url": "https://res.cloudinary.com/di7lw3pla/image/upload/q_auto/f_auto/v1778976849/audifonos3_muxttm.png",
+    "isMain": true
+    },
+    {
+    "url": "https://res.cloudinary.com/di7lw3pla/image/upload/q_auto/f_auto/v1778976849/audifonos2_bjdwcc.png"
+    },
+    {
+    "url": "https://res.cloudinary.com/di7lw3pla/image/upload/q_auto/f_auto/v1778976849/audifonos1_h8e3z6.png"
+    }
+]
+}]
