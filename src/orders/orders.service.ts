@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
@@ -26,7 +27,25 @@ export class OrdersService {
   ) {}
 
   async create(createOrderDto: CreateOrderDto) {
-    const { userId, discount, items } = createOrderDto;
+    const { userId, discount, items, guestName } = createOrderDto;
+
+    let finalUserId = userId;
+
+    // Handle guest checkout
+    if (userId === -1) {
+      if (!guestName) {
+        throw new BadRequestException(
+          'guestName is required for guest checkout',
+        );
+      }
+
+      // Create guest user
+      const guestUser = this.userRepository.create({
+        name: guestName,
+      });
+      const savedGuestUser = await this.userRepository.save(guestUser);
+      finalUserId = savedGuestUser.id;
+    }
 
     const productIds = items.map((item) => item.productId);
     const products = await this.productRepository.findBy({ id: In(productIds) });
@@ -69,7 +88,7 @@ export class OrdersService {
     }
 
     const order = this.orderRepository.create({
-      userId,
+      userId: finalUserId,
       discount: appliedDiscountCode,
       totalSell,
       items: orderItems,
@@ -79,7 +98,7 @@ export class OrdersService {
 
     // Fetch user information and send confirmation email
     try {
-      const user = await this.userRepository.findOneBy({ id: userId });
+      const user = await this.userRepository.findOneBy({ id: finalUserId });
       if (user && user.email && user.name) {
         const orderWithItems = await this.orderRepository.findOne({
           where: { id: savedOrder.id },

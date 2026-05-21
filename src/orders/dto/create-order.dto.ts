@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsInt, IsOptional, IsPositive, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsEmail, IsInt, IsOptional, IsPositive, IsString, ValidateNested, Min } from 'class-validator';
 
 class CreateOrderItemDto {
   @IsInt()
@@ -13,12 +13,17 @@ class CreateOrderItemDto {
 
 export class CreateOrderDto {
   @IsInt()
-  @IsPositive()
+  @Min(-1)
   userId!: number;
 
   @IsOptional()
   @IsString()
   discount?: string;
+
+  // Guest fields (required when userId === -1)
+  @IsOptional()
+  @IsString()
+  guestName?: string;
 
   @IsArray()
   @ValidateNested({ each: true })
