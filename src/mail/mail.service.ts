@@ -8,6 +8,7 @@ import { Discount } from '../products/entities/discount.entity';
 import { Order } from '../orders/entities/order.entity';
 import { OrderItem } from '../orders/entities/order-item.entity';
 import { SendDiscountDto } from './dto/send-discount.dto';
+import { SendKeepInTouchDto } from './dto/send-keep-in-touch.dto';
 
 @Injectable()
 export class MailService {
@@ -107,6 +108,36 @@ export class MailService {
     }
   }
 
+  async sendKeepInTouchEmail(sendKeepInTouchDto: SendKeepInTouchDto) {
+    const { username, email } = sendKeepInTouchDto;
+    const html = this.buildKeepInTouchEmail(username);
+    const senderEmail = this.configService.get<string>('MAIL_FROM');
+    const senderName = this.configService.get<string>('MAIL_FROM_NAME') ?? 'Night Market';
+
+    if (!senderEmail) {
+      throw new InternalServerErrorException('MAIL_FROM is not configured');
+    }
+
+    try {
+      const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+      sendSmtpEmail.sender = {
+        name: senderName,
+        email: senderEmail,
+      };
+      sendSmtpEmail.to = [{ email, name: username }];
+      sendSmtpEmail.subject = 'Sigamos en contacto para futuras colaboraciones - Night Market';
+      sendSmtpEmail.htmlContent = html;
+
+      await this.transactionalApi.sendTransacEmail(sendSmtpEmail);
+
+      this.logger.log(`Keep-in-touch email sent to ${email}`);
+      return { message: 'Keep-in-touch email sent successfully' };
+    } catch (err) {
+      this.logger.error(`Failed to send keep-in-touch email to ${email}`, err);
+      throw new InternalServerErrorException('Failed to send keep-in-touch email');
+    }
+  }
+
   private generateDiscountCode(): string {
     const random = Math.random().toString(36).substring(2, 8).toUpperCase();
     return `NIGHT20-${random}`;
@@ -170,6 +201,70 @@ export class MailService {
                   <td align="center" style="background-color:#000000;padding:20px 40px;border-top:1px solid #2f2f2f;">
                     <p style="margin:0;color:#8a8a8a;font-size:12px;">
                       © 2025 Night Market · Todos los derechos reservados
+                    </p>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
+  }
+
+  private buildKeepInTouchEmail(username: string): string {
+    return `
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>Sigamos en contacto</title>
+      </head>
+      <body style="margin:0;padding:0;background-color:#111111;font-family:'Segoe UI',sans-serif;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#111111;padding:40px 0;">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0"
+                style="background-color:#1c1c1c;border:1px solid #3a3a3a;border-radius:12px;overflow:hidden;max-width:600px;width:100%;">
+
+                <tr>
+                  <td align="center" style="background-color:#000000;padding:32px 40px;border-bottom:1px solid #2f2f2f;">
+                    <h1 style="margin:0;color:#ffffff;font-size:28px;letter-spacing:2px;">NIGHT MARKET</h1>
+                    <p style="margin:8px 0 0;color:#cfcfcf;font-size:14px;">Tu tienda nocturna favorita</p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding:40px;">
+                    <p style="color:#e3e3e3;font-size:16px;margin:0 0 16px;">
+                      Hola, <strong style="color:#ffffff;">${username}</strong>
+                    </p>
+                    <p style="color:#d4d4d4;font-size:15px;line-height:1.7;margin:0 0 20px;">
+                      Gracias por tu interes y por formar parte de la comunidad de Night Market.
+                    </p>
+                    <p style="color:#d4d4d4;font-size:15px;line-height:1.7;margin:0 0 28px;">
+                      Queremos mantenernos en contacto contigo para futuras colaboraciones, novedades y oportunidades que puedan interesarte.
+                    </p>
+
+                    <div style="background-color:#0d0d0d;border:1px solid #2f2f2f;border-radius:10px;padding:20px;">
+                      <p style="margin:0;color:#ffffff;font-size:15px;line-height:1.7;">
+                        Estaremos felices de seguir construyendo juntos.
+                      </p>
+                    </div>
+
+                    <p style="color:#a8a8a8;font-size:13px;margin:28px 0 0;line-height:1.6;">
+                      Si en algun momento quieres dejar de recibir este tipo de mensajes, solo responde este correo.
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td align="center" style="background-color:#000000;padding:20px 40px;border-top:1px solid #2f2f2f;">
+                    <p style="margin:0;color:#8a8a8a;font-size:12px;">
+                      &copy; 2025 Night Market &middot; Todos los derechos reservados
                     </p>
                   </td>
                 </tr>
