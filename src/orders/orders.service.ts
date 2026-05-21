@@ -5,7 +5,9 @@ import { Order } from './entities/order.entity';
 import { OrderItem } from './entities/order-item.entity';
 import { Product } from '../products/entities/product.entity';
 import { Discount } from '../products/entities/discount.entity';
+import { User } from '../users/entities/user.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class OrdersService {
@@ -18,6 +20,9 @@ export class OrdersService {
     private readonly productRepository: Repository<Product>,
     @InjectRepository(Discount)
     private readonly discountRepository: Repository<Discount>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    private readonly mailService: MailService,
   ) {}
 
   async create(createOrderDto: CreateOrderDto) {
@@ -70,7 +75,41 @@ export class OrdersService {
       items: orderItems,
     });
 
-    return this.orderRepository.save(order);
+    const savedOrder = await this.orderRepository.save(order);
+
+    // Fetch user information and send confirmation email
+    try {
+      const user = await this.userRepository.findOneBy({ id: userId });
+      if (user && user.email && user.name) {
+        const orderWithItems = await this.orderRepository.findOne({
+          where: { id: savedOrder.id },
+          relations: ['items'],
+        });
+
+        if (orderWithItems) {
+          const itemsWithNames = orderWithItems.items.map((item) => {
+            const product = productMap.get(item.productId)!;
+            return {
+              productName: product.name,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+            };
+          });
+
+          await this.mailService.sendOrderConfirmation(
+            user.name,
+            user.email,
+            orderWithItems,
+            itemsWithNames,
+          );
+        }
+      }
+    } catch (err) {
+      // Log error but don't fail the order creation if email fails
+      console.error('Failed to send order confirmation email:', err);
+    }
+
+    return savedOrder;
   }
 
   findAll() {
