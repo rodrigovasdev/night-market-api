@@ -2,29 +2,30 @@ import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
-import * as nodemailer from 'nodemailer';
+import * as SibApiV3Sdk from 'sib-api-v3-sdk';
 import { Discount } from '../products/entities/discount.entity';
 import { SendDiscountDto } from './dto/send-discount.dto';
 
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private transporter: nodemailer.Transporter;
+  private readonly transactionalApi: SibApiV3Sdk.TransactionalEmailsApi;
 
   constructor(
     private readonly configService: ConfigService,
     @InjectRepository(Discount)
     private readonly discountRepository: Repository<Discount>,
   ) {
-    this.transporter = nodemailer.createTransport({
-      host: this.configService.get<string>('MAIL_HOST'),
-      port: Number(this.configService.get<string>('MAIL_PORT') ?? 587),
-      secure: this.configService.get<string>('MAIL_SECURE') === 'true',
-      auth: {
-        user: this.configService.get<string>('MAIL_USER'),
-        pass: this.configService.get<string>('MAIL_PASS'),
-      },
-    });
+    const apiKey = this.configService.get<string>('BREVO_API_KEY');
+
+    if (!apiKey) {
+      throw new Error('BREVO_API_KEY is not configured');
+    }
+
+    const defaultClient = SibApiV3Sdk.ApiClient.instance;
+    defaultClient.authentications['api-key'].apiKey = apiKey;
+
+    this.transactionalApi = new SibApiV3Sdk.TransactionalEmailsApi();
   }
 
   async sendDiscountCode(sendDiscountDto: SendDiscountDto) {
@@ -32,14 +33,24 @@ export class MailService {
     const code = this.generateDiscountCode();
 
     const html = this.buildDiscountEmail(username, code);
+    const senderEmail = this.configService.get<string>('MAIL_FROM');
+    const senderName = this.configService.get<string>('MAIL_FROM_NAME') ?? 'Night Market';
+
+    if (!senderEmail) {
+      throw new InternalServerErrorException('MAIL_FROM is not configured');
+    }
 
     try {
-      await this.transporter.sendMail({
-        from: this.configService.get<string>('MAIL_FROM'),
-        to: email,
-        subject: '🎉 Tu código de descuento del 20% — Night Market',
-        html,
-      });
+      const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+      sendSmtpEmail.sender = {
+        name: senderName,
+        email: senderEmail,
+      };
+      sendSmtpEmail.to = [{ email, name: username }];
+      sendSmtpEmail.subject = 'Tu codigo de descuento del 20% - Night Market';
+      sendSmtpEmail.htmlContent = html;
+
+      await this.transactionalApi.sendTransacEmail(sendSmtpEmail);
 
       await this.discountRepository.save(
         this.discountRepository.create({
