@@ -1,4 +1,5 @@
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { formatPriceCLP } from './format-price-clp';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
@@ -195,10 +196,10 @@ export class MailService {
           <p style="margin:0;color:#e3e3e3;font-size:14px;">${item.productName}</p>
         </td>
         <td align="center" style="padding:12px;border-bottom:1px solid #2f2f2f;color:#d4d4d4;font-size:14px;">
-          ${item.quantity} x $${Number(item.unitPrice).toFixed(2)}
+          ${item.quantity} x ${formatPriceCLP(Number(item.unitPrice))}
         </td>
         <td align="right" style="padding:12px;border-bottom:1px solid #2f2f2f;color:#ffffff;font-size:14px;font-weight:600;">
-          $${(item.quantity * Number(item.unitPrice)).toFixed(2)}
+          ${formatPriceCLP(item.quantity * Number(item.unitPrice))}
         </td>
       </tr>
     `,
@@ -266,7 +267,7 @@ export class MailService {
                       <table width="100%" cellpadding="0" cellspacing="0">
                         <tr>
                           <td style="color:#9e9e9e;font-size:14px;padding:8px 0;">Subtotal:</td>
-                          <td align="right" style="color:#d4d4d4;font-size:14px;padding:8px 0;">$${subtotal.toFixed(2)}</td>
+                          <td align="right" style="color:#d4d4d4;font-size:14px;padding:8px 0;">${formatPriceCLP(subtotal)}</td>
                         </tr>
                         ${hasDiscount ? `
                         <tr>
@@ -274,13 +275,13 @@ export class MailService {
                             Descuento (${order.discount}):
                           </td>
                           <td align="right" style="color:#4ade80;font-size:14px;font-weight:600;padding:8px 0;">
-                            -$${discountAmount.toFixed(2)}
+                            -${formatPriceCLP(discountAmount)}
                           </td>
                         </tr>
                         ` : ''}
                         <tr style="border-top:1px solid #2f2f2f;border-bottom:1px solid #2f2f2f;">
                           <td style="color:#ffffff;font-size:16px;font-weight:700;padding:12px 0;">Total:</td>
-                          <td align="right" style="color:#ffffff;font-size:16px;font-weight:700;padding:12px 0;">$${Number(order.totalSell).toFixed(2)}</td>
+                          <td align="right" style="color:#ffffff;font-size:16px;font-weight:700;padding:12px 0;">${formatPriceCLP(Number(order.totalSell))}</td>
                         </tr>
                       </table>
                     </div>
