@@ -7,7 +7,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
     app.enableCors({
     origin: ['http://localhost:3001',
-    'https://night-market-black.vercel.app/',],
+    'https://night-market-black.vercel.app',],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
