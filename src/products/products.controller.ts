@@ -24,6 +24,11 @@ export class ProductsController {
     return this.productsService.findLatest();
   }
 
+  @Get('top-selling')
+  findTopSelling() {
+    return this.productsService.findTopSelling();
+  }
+
   @Post('calculate')
   calculateOrder(@Body() calculateOrderDto: CalculateOrderDto) {
     return this.productsService.calculateOrder(calculateOrderDto);

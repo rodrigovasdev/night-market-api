@@ -10,6 +10,7 @@ import { ProductImage } from './entities/product-image.entity';
 import { Discount } from './entities/discount.entity';
 import { Review } from './entities/review.entity';
 import { Subcategory } from '../subcategories/entities/subcategory.entity';
+import { OrderItem } from '../orders/entities/order-item.entity';
 
 @Injectable()
 export class ProductsService {
@@ -20,6 +21,8 @@ export class ProductsService {
     private readonly productImageRepository: Repository<ProductImage>,
     @InjectRepository(Review)
     private readonly reviewRepository: Repository<Review>,
+    @InjectRepository(OrderItem)
+    private readonly orderItemRepository: Repository<OrderItem>,
     @InjectRepository(Subcategory)
     private readonly subcategoryRepository: Repository<Subcategory>,
     @InjectRepository(Discount)
@@ -54,6 +57,47 @@ export class ProductsService {
       order: { id: 'DESC' },
       take: 4,
     });
+  }
+
+  async findTopSelling(limit = 4) {
+    const topSelling = await this.orderItemRepository.query(
+      `
+        SELECT
+          oi."productId" AS "productId",
+          SUM(oi.quantity)::int AS "soldQuantity"
+        FROM order_items oi
+        GROUP BY oi."productId"
+        ORDER BY SUM(oi.quantity) DESC
+        LIMIT $1
+      `,
+      [limit],
+    );
+
+    if (!topSelling.length) {
+      return [];
+    }
+
+    const productIds = topSelling.map(({ productId }) => Number(productId));
+    const products = await this.productRepository.find({
+      where: { id: In(productIds) },
+      relations: ['images', 'subcategory'],
+    });
+
+    const productMap = new Map(products.map((product) => [product.id, product]));
+
+    return topSelling
+      .map((item) => {
+        const product = productMap.get(Number(item.productId));
+        if (!product) {
+          return null;
+        }
+
+        return {
+          ...product,
+          soldQuantity: Number(item.soldQuantity),
+        };
+      })
+      .filter((product): product is Product & { soldQuantity: number } => product !== null);
   }
 
   findOne(id: number) {

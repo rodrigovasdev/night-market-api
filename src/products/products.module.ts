@@ -6,10 +6,11 @@ import { Product } from './entities/product.entity';
 import { ProductImage } from './entities/product-image.entity';
 import { Discount } from './entities/discount.entity';
 import { Review } from './entities/review.entity';
+import { OrderItem } from '../orders/entities/order-item.entity';
 import { SubcategoriesModule } from '../subcategories/subcategories.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, ProductImage, Discount, Review]), SubcategoriesModule],
+  imports: [TypeOrmModule.forFeature([Product, ProductImage, Discount, Review, OrderItem]), SubcategoriesModule],
   controllers: [ProductsController],
   providers: [ProductsService],
 })
