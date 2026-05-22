@@ -18,5 +18,13 @@ describe('AppController', () => {
     it('should return "Hello World!"', () => {
       expect(appController.getHello()).toBe('Hello World!');
     });
+
+    it('should return keep alive status', () => {
+      const keepAlive = appController.getKeepAlive();
+
+      expect(keepAlive.status).toBe('alive');
+      expect(keepAlive.service).toBe('night-market-api');
+      expect(typeof keepAlive.timestamp).toBe('string');
+    });
   });
 });

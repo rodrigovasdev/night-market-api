@@ -9,4 +9,13 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
+
+  @Get('keep-alive')
+  getKeepAlive() {
+    return {
+      status: 'alive',
+      service: 'night-market-api',
+      timestamp: new Date().toISOString(),
+    };
+  }
 }
