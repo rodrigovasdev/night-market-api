@@ -13,5 +13,6 @@ import { SubcategoriesModule } from '../subcategories/subcategories.module';
   imports: [TypeOrmModule.forFeature([Product, ProductImage, Discount, Review, OrderItem]), SubcategoriesModule],
   controllers: [ProductsController],
   providers: [ProductsService],
+  exports: [ProductsService],
 })
 export class ProductsModule {}

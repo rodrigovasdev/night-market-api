@@ -31,6 +31,29 @@
 $ npm install
 ```
 
+## Websocket chatbot con Gemini
+
+Variables de entorno requeridas:
+
+```bash
+GEMINI_API_KEY=tu_api_key
+GEMINI_MODEL=gemini-2.5-flash
+GEMINI_SYSTEM_PROMPT=Eres el asistente virtual de Night Market...
+```
+
+Conexion con Socket.IO:
+
+```text
+http://localhost:3000/chat
+```
+
+Eventos soportados:
+
+- `chat:ready`: confirma que la conexion fue aceptada.
+- `chat:message`: envia `{ "message": "Hola" }`.
+- `chat:response`: recibe `{ "reply": "...", "timestamp": "..." }`.
+- `chat:reset`: limpia el historial de la conversacion para ese socket.
+
 ## Compile and run the project
 
 ```bash
