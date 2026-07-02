@@ -72,4 +72,13 @@ export class SeedService {
       }
     }
   }
+
+  async updatePrices() {
+    const result = await this.dataSource.query(
+      `UPDATE product SET price = FLOOR(price * 1000)`,
+    );
+    const rowsAffected = result[1] ?? 'unknown';
+    this.logger.log(`Prices updated. Rows affected: ${rowsAffected}`);
+    return { message: 'Prices updated successfully', rowsAffected };
+  }
 }
