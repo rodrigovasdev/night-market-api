@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, ILike, In, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -102,6 +102,18 @@ export class ProductsService {
 
   findOne(id: number) {
     return this.productRepository.findOne({ where: { id }, relations: ['images', 'subcategory'] });
+  }
+
+  searchByTerms(terms: string[]) {
+    const conditions = terms.flatMap((term) => [
+      { name: ILike(`%${term}%`) },
+      { shortDescription: ILike(`%${term}%`) },
+    ]);
+
+    return this.productRepository.find({
+      where: conditions,
+      relations: ['images', 'subcategory'],
+    });
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {

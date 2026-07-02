@@ -10,6 +10,7 @@ import { MailModule } from './mail/mail.module';
 import { OrdersModule } from './orders/orders.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [UsersModule,
@@ -19,6 +20,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
             SeedModule,
             MailModule,
             OrdersModule,
+            ChatModule,
             ConfigModule.forRoot({
               isGlobal: true,
             }),
