@@ -10,7 +10,7 @@ import {
 } from '@nestjs/websockets';
 import { Logger, ValidationPipe, UsePipes } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { ChatService, GeminiChatTurn } from './chat.service';
+import { ChatService, GroqChatTurn } from './chat.service';
 import { ChatMessageDto } from './dto/chat-message.dto';
 
 @WebSocketGateway({
@@ -25,7 +25,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server!: Server;
 
   private readonly logger = new Logger(ChatGateway.name);
-  private readonly sessions = new Map<string, GeminiChatTurn[]>();
+  private readonly sessions = new Map<string, GroqChatTurn[]>();
 
   constructor(private readonly chatService: ChatService) {}
 
@@ -68,7 +68,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.emit('chat:response', outgoingPayload);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'No fue posible generar la respuesta';
-      this.logger.error(`Gemini chat failure for client ${client.id}`, error instanceof Error ? error.stack : undefined);
+      this.logger.error(`Groq chat failure for client ${client.id}`, error instanceof Error ? error.stack : undefined);
       throw new WsException(message);
     }
   }
