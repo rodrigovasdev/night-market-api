@@ -28,15 +28,17 @@ import { ChatModule } from './chat/chat.module';
             TypeOrmModule.forRootAsync({
               imports: [ConfigModule],
               inject: [ConfigService],
-              useFactory: (configService: ConfigService) => ({
-                type: 'postgres',
-                url: configService.get<string>('DB_URL'),
-                autoLoadEntities: true,
-                synchronize: true,
-                ssl: {
-                  rejectUnauthorized: false,
-                },
-              }),
+              useFactory: (configService: ConfigService) => {
+                const url = configService.get<string>('DB_URL');
+                const isLocal = url?.includes('localhost') || url?.includes('127.0.0.1') || url?.includes('@postgres:');
+                return {
+                  type: 'postgres',
+                  url,
+                  autoLoadEntities: true,
+                  synchronize: true,
+                  ...(isLocal ? {} : { ssl: { rejectUnauthorized: false } }),
+                };
+              },
             }),],
   controllers: [AppController],
   providers: [AppService],
