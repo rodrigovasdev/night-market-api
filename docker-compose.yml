@@ -1,0 +1,36 @@
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: night-market-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: EBFcA268YZTxaW6pyS4qOmTAWh86VryF
+      POSTGRES_DB: nightmarketdb
+    ports:
+      - '5434:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U admin -d nightmarketdb']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    container_name: night-market-api
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    environment:
+      DB_URL: postgresql://admin:EBFcA268YZTxaW6pyS4qOmTAWh86VryF@postgres:5432/nightmarketdb
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
