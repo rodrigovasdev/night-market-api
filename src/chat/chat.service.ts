@@ -1,6 +1,8 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ProductsService } from '../products/products.service';
+import { CHAT_DEFAULT_SYSTEM_PROMPT } from './config/chat.prompts';
+import { CHAT_TOOLS } from './config/chat.tools';
 
 interface ChatProductSummary {
   id: number;
@@ -69,8 +71,7 @@ export class ChatService {
     this.modelName =
       this.configService.get<string>('GROQ_MODEL') ?? 'llama-3.3-70b-versatile';
     this.systemInstruction =
-      this.configService.get<string>('GROQ_SYSTEM_PROMPT') ??
-      'Eres el asistente virtual de Night Market. Responde en espanol, se claro, breve y util para clientes de ecommerce.';
+      this.configService.get<string>('GROQ_SYSTEM_PROMPT') ?? CHAT_DEFAULT_SYSTEM_PROMPT;
   }
 
   getModelName() {
@@ -145,38 +146,10 @@ export class ChatService {
   }
 
   private buildTools() {
-    return [
-      {
-        type: 'function',
-        function: {
-          name: 'get_available_products',
-          description:
-            'Obtiene la lista de productos disponibles en el catálogo de Night Market. Úsala cuando el usuario pregunte qué productos hay, qué venden, el catálogo o productos disponibles.',
-        },
-      },
-      {
-        type: 'function',
-        function: {
-          name: 'get_product_by_name',
-          description:
-            'Busca productos en el catálogo por términos relacionados. Úsala cuando el usuario pregunte por un producto específico. Debes incluir sinónimos y variantes: singular, plural, palabras relacionadas.',
-          parameters: {
-            type: 'object',
-            properties: {
-              terms: {
-                type: 'array',
-                items: { type: 'string' },
-                description: 'Lista de términos de búsqueda: incluye la palabra original, variantes en singular/plural y sinónimos relacionados, sin tildes.',
-              },
-            },
-            required: ['terms'],
-          },
-        },
-      },
-    ];
+    return CHAT_TOOLS;
   }
 
-  private async callGroq(messages: GroqMessage[], tools?: unknown[]): Promise<GroqResponse> {
+  private async callGroq(messages: GroqMessage[], tools?: readonly unknown[]): Promise<GroqResponse> {
     const body: Record<string, unknown> = {
       model: this.modelName,
       messages,

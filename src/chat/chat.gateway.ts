@@ -33,7 +33,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.sessions.set(client.id, []);
     this.logger.log(`Chat client connected: ${client.id}`);
     client.emit('chat:ready', {
-      message: 'Conexion websocket establecida',
+      message: 'Night-bot en linea.',
       model: this.chatService.getModelName(),
     });
   }
