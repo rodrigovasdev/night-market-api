@@ -67,7 +67,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       client.emit('chat:response', outgoingPayload);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'No fue posible generar la respuesta.';
+      const message = error instanceof Error ? error.message : 'No fue posible generar la respuesta';
       this.logger.error(`Groq chat failure for client ${client.id}`, error instanceof Error ? error.stack : undefined);
       throw new WsException(message);
     }
