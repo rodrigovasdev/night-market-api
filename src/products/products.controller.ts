@@ -55,6 +55,11 @@ export class ProductsController {
     );
   }
 
+  @Post(':id/visits')
+  incrementVisits(@Param('id') id: string) {
+    return this.productsService.incrementVisits(+id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productsService.findOne(+id);

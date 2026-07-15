@@ -104,6 +104,13 @@ export class ProductsService {
     return this.productRepository.findOne({ where: { id }, relations: ['images', 'subcategory'] });
   }
 
+  async incrementVisits(id: number) {
+    const product = await this.productRepository.findOneBy({ id });
+    if (!product) throw new NotFoundException(`Product with id ${id} not found`);
+    await this.productRepository.increment({ id }, 'visits', 1);
+    return { id, visits: product.visits + 1 };
+  }
+
   searchByTerms(terms: string[]) {
     const conditions = terms.flatMap((term) => [
       { name: ILike(`%${term}%`) },
