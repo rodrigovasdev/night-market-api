@@ -69,7 +69,7 @@ export class ChatService {
   ) {
     this.apiKey = this.configService.get<string>('GROQ_API_KEY') ?? '';
     this.modelName =
-      this.configService.get<string>('GROQ_MODEL') ?? 'llama-3.3-70b-versatile';
+      this.configService.get<string>('GROQ_MODEL') ?? 'openai/gpt-oss-120b';
     this.systemInstruction =
       this.configService.get<string>('GROQ_SYSTEM_PROMPT') ?? CHAT_DEFAULT_SYSTEM_PROMPT;
   }
